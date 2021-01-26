@@ -13,7 +13,7 @@ module.exports = (passport) => {
             const exUser = await User.findOne({where:{kakao_id:profile.id, name:profile.username}})
             if(exUser){
                 console.log('exUser')
-                done(null, exUser.dataValues)
+                done(null, exUser)
             } else{
                 console.log('newUser')
                 const newUser = await User.create({
@@ -22,6 +22,7 @@ module.exports = (passport) => {
                     access_token: accessToken, 
                     refresh_token: refreshToken
                 })
+                console.log(newUser)
                 done(null, newUser)
             }
         } catch(e) {

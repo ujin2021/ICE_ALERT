@@ -19,6 +19,7 @@
   "homepage": "https://github.com/ujin2021/ICE_ALERT#readme",
   "dependencies": {
     "axios": "^0.21.1",
+    "cheerio": "^1.0.0-rc.5",
     "ejs": "^3.1.5",
     "express": "^4.17.1",
     "express-session": "^1.17.1",

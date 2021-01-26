@@ -1,7 +1,6 @@
 const baseUrl = '../static/'
 
 exports.indexAPI = (req, res) => {
-    console.log(req.session)
     console.log(req.session.passport)
     res.render(baseUrl + 'index.html')
 }
