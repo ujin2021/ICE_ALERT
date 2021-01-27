@@ -1,8 +1,11 @@
 const axios = require('axios')
 const { html } = require('cheerio')
 const cheerio = require('cheerio')
+const { userInfo } = require('os')
 const { crawl_url } = require('../config/crawling')
 const { getToday } = require('../lib/libs')
+const { User } = require('../models')
+const { setOptions } = require('../sendmsg')
 
 const getHtml = async() => {
     try{
@@ -34,16 +37,20 @@ getHtml()
     })
     .then(async(data) => {
         const today = await getToday()
-        // console.log(data)
-        let today_idx = []
+        // const today = '2021-01-27'
+        console.log(data)
+        let posts = []
         for (let i = 0; i < data.length; i++) {
+            console.log(`data[i].date : ${data[i].date}, today : ${today}`)
             if(data[i].date === today){
                 console.log('today!')
-                today_idx.push(i)
+                posts.push(data[i].title)
             }
         }
-        // console.log(today_idx)
-        if(today_idx.length > 0) { // 새로 올라온게 있으면
-            // db에 저장된 user에게 msg 전송하는 function
+        console.log(`today posts : ${posts}`)
+        if(posts.length > 0) { // 새로 올라온게 있으면
+            const tokens = await User.findAll({attributes: ['access_token']})
+            // console.log(tokens[0].access_token)
+            await setOptions(tokens, posts)
         }
     })
