@@ -4,6 +4,9 @@ const axios = require('axios')
 exports.setOptions = async(tokens, titles) => {
     let auth = ``
     for(let i = 0; i < tokens.length; i++) {
+        // token 먼저 체크 : https://developers.kakao.com/docs/latest/ko/kakaologin/rest-api#refresh-token (토큰정보보기)
+        // 401이면 refresh token 이용해서 다시받기
+        // refesh token이 곧 만료되면 msg로 다시 로그인해달라고 알림 주기
         auth = `Bearer ${tokens[i].access_token}`
         console.log(`auth : ${auth}`)
         const text_content = {
@@ -39,6 +42,7 @@ const sendmsg = async(options) => {
     })
     .catch(function(err){
         console.log(`kakao send msg api err : ${err}`)
+        let status = err.response.status
         return false
     })
 }

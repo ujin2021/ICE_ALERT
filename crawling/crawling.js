@@ -37,7 +37,7 @@ getHtml()
     })
     .then(async(data) => {
         const today = await getToday()
-        // const today = '2021-01-27'
+        // const today = '2021-02-09'
         console.log(data)
         let posts = []
         for (let i = 0; i < data.length; i++) {
@@ -51,6 +51,6 @@ getHtml()
         if(posts.length > 0) { // 새로 올라온게 있으면
             const tokens = await User.findAll({attributes: ['access_token']})
             // console.log(tokens[0].access_token)
-            await setOptions(tokens, posts)
+            await setOptions(tokens, posts) // msg를 보낸다
         }
     })
