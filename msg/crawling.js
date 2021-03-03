@@ -1,22 +1,25 @@
 const axios = require('axios')
 const { html } = require('cheerio')
 const cheerio = require('cheerio')
+const { get } = require('https')
 const { userInfo } = require('os')
 const { crawl_url } = require('../config/crawling')
 const { getToday } = require('../lib/libs')
-const { User } = require('../models')
-const { setOptions } = require('../sendmsg')
+const { executeMsg } = require('./sendmsg')
 
+// ice 홈페이지 게시판 crawling
 const getHtml = async() => {
     try{
         return await axios.get(crawl_url)
-    } catch(err) {
-        console.log('axios err : ', err)
+    } catch(e) {
+        console.log('axios err : ', e)
     }
 }
 
-getHtml()
-    .then(html => {
+// crawling한 내용 정리
+const crawling = async() => {
+    try {
+        let html = await getHtml()
         let postList = []
         const $ = cheerio.load(html.data)
         const $bodyList = $("div.list form table tbody").children("tr")
@@ -34,23 +37,39 @@ getHtml()
         });
         const data = postList
         return data
-    })
-    .then(async(data) => {
-        const today = await getToday()
-        // const today = '2021-02-09'
-        console.log(data)
-        let posts = []
-        for (let i = 0; i < data.length; i++) {
-            console.log(`data[i].date : ${data[i].date}, today : ${today}`)
-            if(data[i].date === today){
-                console.log('today!')
-                posts.push(data[i].title)
-            }
+    }
+    catch(e) {
+        console.log('crawling err : ', e)
+    }
+}
+
+// 오늘 날짜에 해당하는 것이 있으면 해당 게시물을 return
+const checkToday = async(data) => {
+    const today = await getToday()
+    let posts = []
+    for (let i = 0; i < data.length; i++) {
+        // console.log(`data[i].date : ${data[i].date}, today : ${today}`)
+        if(data[i].date === today){
+            // console.log('today!')
+            posts.push(data[i].title)
         }
-        console.log(`today posts : ${posts}`)
-        if(posts.length > 0) { // 새로 올라온게 있으면
-            const tokens = await User.findAll({attributes: ['access_token']})
-            // console.log(tokens[0].access_token)
-            await setOptions(tokens, posts) // msg를 보낸다
-        }
-    })
+    }
+    // console.log(`today posts : ${posts}`)
+    if(posts.length > 0) { // 새로 올라온게 있으면
+        return posts
+    } else {
+        return false
+    }
+}
+
+const execute = async() => {
+    await getHtml()
+    const data = await crawling()
+    let post = await checkToday(data)
+    if(post) {
+        console.log(post)
+        return executeMsg(post)
+    }
+}
+
+execute()

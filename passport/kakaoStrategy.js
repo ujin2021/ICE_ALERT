@@ -13,7 +13,7 @@ module.exports = (passport) => {
             const exUser = await User.findOne({where:{kakao_id:profile.id, name:profile.username}})
             if(exUser){
                 if(exUser.dataValues.access_token !== accessToken){
-                    await User.update({access_token: accessToken}, {where:{kakao_id:profile.id}})
+                    await User.update({access_token: accessToken, refresh_token: refreshToken}, {where:{kakao_id:profile.id}})
                 }
                 done(null, exUser)
             } else{
